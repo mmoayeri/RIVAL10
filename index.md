@@ -1,37 +1,36 @@
-## Welcome to GitHub Pages
+## RIVAL10 Dataset
 
-You can use the [editor on GitHub](https://github.com/mmoayeri/RIVAL10/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+**RI**ch **V**isual **A**ttributes with **L**ocalization
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+# Overview
 
-### Markdown
+RIVAL10 is a richly attributed dataset, containing
+- 26k images over 10 classes 
+- Instance-wise annotations for 18 informative visual attributes
+- _Segmentation Masks_ for each present attribute in an image, as well as the entire object
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+# Download
 
-```markdown
-Syntax highlighted code block
+Download the dataset from box here. 
 
-# Header 1
-## Header 2
-### Header 3
+# Details on the Data
 
-- Bulleted
-- List
+## Classes
 
-1. Numbered
-2. List
+RIVAL10 is CIFAR10 via Imagenet.
 
-**Bold** and _Italic_ and `Code` text
+< insert image of RIVAL10 origin classes >
 
-[Link](url) and ![Image](src)
-```
+## Attributes
 
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
+By design, RIVAL10 attributes are 
+- **informative**: any two classes can (generally) be distinguished by at least one attribute
+- **intuitive**: attributes are visual traits that a human may appeal to in performing RIVAL10 classification
 
-### Jekyll Themes
+< insert image on attribute frequency >
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/mmoayeri/RIVAL10/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+# Analysis
 
-### Support or Contact
+sliding window of noise examples
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+sliding window of saliency misalignments
