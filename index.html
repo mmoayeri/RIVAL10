@@ -428,7 +428,7 @@
 
         </table>
         <br>
-        We display attribute frequencies across classes below.
+          RIVAL10 also provides <i>segmentation masks</i> for <b>every positive attribute instance</b>. We display attribute frequencies across classes below.
 
         <center><img src="./attributes.png" width="70%"></center>
         <!-- By design, RIVAL10 attributes are -->
@@ -439,6 +439,9 @@
 <div id="analysis" class = "container-fluid row">
     <div class="col-sm-8 col-sm-offset-2">
         <h2 class="text-center">Analysis</h2>
+        <ul class="lead text-center">
+          RIVAL10 has many uses, from guiding models to learn from attributes to assessing model sensitivities to various regions. The latter was the focus of RIVAL10's original paper. Namely, noise and saliency analyses were used to assess background sensitivity and find spurious features. Below, we show examples where models appear more sensitive to backgrounds.
+      </ul>
         <div class="container-fluid text-center" onload="currentSlide(1);">
 
             <!-- Full-width images with number text -->
@@ -568,23 +571,21 @@
     <div class="col-sm-8 col-sm-offset-2">
         <h2 class="text-center">Download</h2><br>
         <ul class='lead'>
-            <li style='margin: 0;padding: 36px 0 36px 84px;list-style: none;background-image: url("static/github_logo.png");background-repeat: no-repeat;background-position: left center;background-size: 60px;'> 
+            <li style='margin: 0;padding: 36px 0 36px 84px;list-style: none;background-image: url("github_logo.png");background-repeat: no-repeat;background-position: left center;background-size: 60px;'> 
               <h3 style='text-align:left'>From Github (recommended)</h3>
     
                     Follow the setup instructions in <a href='https://github.com/singlasahil14/salient_imagenet'>this repository</a> to download the data and other utilities. 
                     <br>
-                    This repo also details how to replicate all experiments.
+              This repo also contains <b>custom data loaders</b> to easily access RIVAL10's rich annotations.
               </li>
-            <li style='margin: 0;padding: 36px 0 36px 84px;list-style: none;background-image: url("static/download_logo.png");background-repeat: no-repeat;background-position: left center;background-size: 60px;'>
+            <li style='margin: 0;padding: 36px 0 36px 84px;list-style: none;background-image: url("download_logo.png");background-repeat: no-repeat;background-position: left center;background-size: 60px;'>
               <h3 style='text-align:left'>Directly From Box</h3>
                     Download the dataset directly from <a href='https://umd.box.com/s/eyji8leh2lemhbxovgny9ywc9is53ibr'>box</a>, or use the following code to download the data on remote server:
                     <pre><code>curl -L https://umd.app.box.com/shared/static/eyji8leh2lemhbxovgny9ywc9is53ibr -o salient_imagenet_dataset.zip
     
-    unzip salient_imagenet_dataset.zip</code></pre>
+unzip salient_imagenet_dataset.zip</code></pre>
               </li>
-            <br>
-            We recommed the first approach, where you can also access easy-to-use data loaders that consolidate annotations to a single core mask per image, as well as evaluation procedures. 
-            
+            <br>            
         </ul>
     </div>
 </div>
