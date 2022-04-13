@@ -23,6 +23,11 @@ _S3_IMAGENET_ROOT = 'https://feizi-lab-datasets.s3.us-east-2.amazonaws.com/image
 
 class RIVAL10(Dataset):
     def __init__(self, train=True, return_masks=False):
+        '''
+        When return_masks is True, the object mask is returned, as well as the image and label.
+
+        Use LocalRIVAL10 with masks_dict=True to obtain attribute masks. See local_rival10.py.
+        '''
         self.train = train
         self.return_masks = return_masks
         self.mask_root = _MASKS_TEMPLATE_ROOT.format('train' if self.train else 'test')
