@@ -15,5 +15,7 @@ Alternatively, download weights of final linear layers finetuned for RIVAL10 cla
 Most plots are generated in noise_analysis.py. 
 
 Noise analysis: first run compute_noise_robustness.py, then noise_analysis_plots.py
+
 Saliency analysis: first run bg_fg_saliency.py, then saliency_alignment_plots.py
+
 Attribute ablation: run attr_importance.py
