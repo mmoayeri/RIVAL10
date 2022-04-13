@@ -189,19 +189,3 @@ view_attr_swapped_imgs()
 # dcr_class_to_idx_dict = dict({dcr_idx_to_class_dict[c]:c for c in dcr_idx_to_class_dict})
 # classes_to_skip = [dcr_class_to_idx_dict[cn] for cn in class_names_to_skip]
 # view_rival10_examples(classes_to_skip)
-
-#     ('deit_tiny', 'ship', 'ship', 'delta_densities', 4),
-'''
-All of vit_tiny_worst_delta_densities ships show water!
-deit_tiny_worst_delta_densities: bird 0, 1, 2,
-
-deit_base_worst_mask_coverages_25: bird 1 <-- bird feeder
-deit_small_worst_mask_coveragegs_25: bird 3 <-- bird feeder
-
-resnet50_worst_delta_densities: bird 0
-simclr_worst_delta_densities: bird 0,1 <-- misclassified deer; ship 0,1,3,4 <-- misclassified dogs and bird
-
-vit_base_worst_delta_densities: bird 1,2 <-- bird feeders
-robust_resnet50_worst_delta_densities: bird 3,4 <-- twigs, misclassified frog
-robust_resnet18_worst_fracs_inside: bird 2 <-- misclassified truck
-'''
