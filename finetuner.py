@@ -8,7 +8,6 @@ from robustness.datasets import ImageNet
 from robustness.model_utils import make_and_restore_model
 import argparse
 import timm
-from simple_models import SimpleResNet
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 _FT_ROOT = '/cmlscratch/mmoayeri/dcr_models/finetuned/'
@@ -63,10 +62,10 @@ class FineTuner(object):
 
         elif 'deit' in self.mtype:
             if 'small' in self.mtype:
-                model = torch.hub.load(_DEIT_ROOT, 'deit_small_patch16_224', pretrained=True, source='local')
+                model = torch.hub.load('facebookresearch/deit:main', 'deit_small_patch16_224', pretrained=True, source='local')
             elif 'base' in self.mtype:
-                # model = torch.hub.load('facebookresearch/deit:main', 'deit_base_patch16_224', pretrained=True)
-                model = torch.hub.load(_DEIT_ROOT, 'deit_base_patch16_224', pretrained=True, source='local')
+                model = torch.hub.load('facebookresearch/deit:main', 'deit_base_patch16_224', pretrained=True)
+                # model = torch.hub.load(_DEIT_ROOT, 'deit_base_patch16_224', pretrained=True, source='local')
             elif 'tiny' in self.mtype:
                 model = torch.hub.load('facebookresearch/deit:main', 'deit_tiny_patch16_224', pretrained=True)
             # model = torch.hub.load(_DEIT_ROOT, 'deit_base_patch16_224', pretrained=True, source='local')
