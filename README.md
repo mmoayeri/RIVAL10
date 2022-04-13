@@ -8,7 +8,11 @@ unzip rival10.zip
 ### Obtaining Models Finetuned on RIVAL10
 
 To finetune all models on RIVAL10, run 'python finetuner.py --all'. 
-Alternatively, download weights of final linear layers finetuned for RIVAL10 classification from here. 
+Alternatively, download weights of final linear layers finetuned for RIVAL10 classification with the following command:
+```
+curl -L 'https://app.box.com/index.php?rm=box_download_shared_file&shared_name=cvrqihbz6u0y9niyf5f4eazkhzki7lgr&file_id=f_944516981880' -o rival10_ft_model_weights.zip
+unzip rival10_ft_model_weights.zip
+```
 
 ### Reproducing Analysis
 
