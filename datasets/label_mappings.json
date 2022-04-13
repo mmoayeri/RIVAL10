@@ -1,0 +1,22 @@
+{
+  "moving van": ["truck", 0],
+  "semi": ["truck", 0],
+  "waggon": ["car", 1],
+  "convertible": ["car", 1],
+  "airliner": ["plane", 2],
+  "military plane": ["plane", 2],
+  "ocean liner": ["ship", 3],
+  "container vessel": ["ship", 3],
+  "Persian cat": ["cat", 4],
+  "Egyptian cat": ["cat", 4],
+  "Labrador retriever": ["dog", 5],
+  "golden retriever": ["dog", 5],
+  "sorrel": ["equine", 6],
+  "zebra": ["equine", 6],
+  "gazelle": ["deer", 7],
+  "Aepyceros melampus": ["deer", 7],
+  "Ascaphus trui": ["frog", 8],
+  "tree-frog": ["frog", 8],
+  "Carduelis carduelis": ["bird", 9],
+  "Carpodacus mexicanus": ["bird", 9]
+}
