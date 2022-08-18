@@ -3,6 +3,7 @@ from utils import *
 from torchvision.utils import make_grid
 from pytorch_grad_cam import GradCAM, ScoreCAM
 from pytorch_grad_cam.utils.image import show_cam_on_image
+from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 from PIL import Image
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -27,9 +28,9 @@ def clip_vit_reshape_transform(tensor, height=14, width=14):
 def gradcam(model, pos, target_layer, target_category, cam, vit=False):
     if cam is None:
         model.logit_only = True
-        cam = GradCAM(model=model, target_layer=target_layer, use_cuda=True)
+        cam = GradCAM(model=model, target_layers=[target_layer], use_cuda=True)
     pos = pos.cuda()
-    grayscale_cam = cam(input_tensor=pos, target_category=target_category, eigen_smooth=False)
+    grayscale_cam = cam(input_tensor=pos, targets=[target_category], eigen_smooth=False)
     return grayscale_cam
 
 def compute_saliency_thresholds(gcam, thresholds=[0.25, 0.5, 0.75]):
@@ -66,8 +67,10 @@ def gradcam_vis_and_score(model, pos, masks, target_layer, target_category, vis=
     grayscale_cam = []
     if type(target_category) is not list:
         target_category = [target_category] * pos.shape[0]
+        targets = [ClassifierOutputTarget(i.item()) for i in target_labels]
     for i in range(0,pos.shape[0]):
-        grayscale_cam.append(gradcam(model, pos[i:i+1], target_layer, target_category[i], cam))
+        # grayscale_cam.append(gradcam(model, pos[i:i+1], target_layer, target_category[i], cam))
+        grayscale_cam.append(gradcam(model, pos[i:i+1], target_layer, targets[i], cam))
     grayscale_cam = np.concatenate(grayscale_cam)
 
     visualizations = []
@@ -128,9 +131,9 @@ def get_cam_obj(model, target_layer, mtype, camtype='gradcam'):
         reshape_transform = lambda x : x
     
     if camtype == 'gradcam':
-        cam = GradCAM(model=model, target_layer=target_layer, use_cuda=True, reshape_transform=reshape_transform)
+        cam = GradCAM(model=model, target_layers=[target_layer], use_cuda=True, reshape_transform=reshape_transform)
     elif camtype == 'scorecam':
-        cam = ScoreCAM(model=model, target_layer=target_layer, use_cuda=True, reshape_transform=reshape_transform)
+        cam = ScoreCAM(model=model, target_layers=[target_layer], use_cuda=True, reshape_transform=reshape_transform)
 
     return cam
 
