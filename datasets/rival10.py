@@ -16,7 +16,7 @@ from pathlib import Path
 _PARTITIONED_URLS_DICT_PATH = './datasets/train_test_split_by_url.json'
 _LABEL_MAPPINGS = './datasets/label_mappings.json'
 _WNID_TO_CLASS = './datasets/wnid_to_class.json'
-_MASKS_TEMPLATE_ROOT = '../LocalRIVAL10_bijective_2/{}/entire_object_masks/'
+_MASKS_TEMPLATE_ROOT = '../data/RIVAL10/{}/entire_object_masks/'
 _NO_EO_MASKS_PATH = None
 _IMAGENET_ROOT = '/fs/cml-datasets/ImageNet/ILSVRC2012/'
 _S3_IMAGENET_ROOT = 'https://feizi-lab-datasets.s3.us-east-2.amazonaws.com/imagenet/'
