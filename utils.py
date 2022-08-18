@@ -7,6 +7,7 @@ from datasets import *
 from datasets.rival10 import _LABEL_MAPPINGS
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
+from finetuner import *
 
 def get_model_name(mtype):
     out = mtype

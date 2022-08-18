@@ -3,6 +3,7 @@ from utils import *
 from tqdm import tqdm
 import pickle
 import numpy as np
+from datasets import RIVAL10
 
 epsilon_dict = dict({'linf': [x/255 for x in [30,60,90,120,150,180,210]],
                      'l2' : [25,50,75,100, 125,150,175,200]})
@@ -89,9 +90,11 @@ def noise_robustness(mtype, loader, eps=25.0, num_trials=1, linf=False, adv=Fals
     stats[eps] = dict({'og_accs':og_accs, 'og_probs': all_og_probs,
                        'noisy_bg_accs':noisy_bg_accs, 'noisy_fg_accs':noisy_fg_accs,
                        'noisy_bg_probs':all_noisy_bg_probs, 'noisy_fg_probs': all_noisy_fg_probs})
-    cache_results(stats, save_root='./bg_fg/noise/', key=mtype+ext)
+    # cache_results(stats, save_root='./bg_fg/noise/', key=mtype+ext)
 
 def compute_noise_robustness_all_models(mtypes):
+    dset = RIVAL10(train=False, return_masks=True)
+    loader = torch.utils.data.DataLoader(dset, batch_size=16, shuffle=False)
     for mtype in tqdm(mtypes):
         for eps in epsilon_dict['linf']:
             noise_robustness(mtype, loader, linf=True, eps=eps/255)

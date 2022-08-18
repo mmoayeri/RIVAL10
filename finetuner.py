@@ -8,6 +8,7 @@ from robustness.datasets import ImageNet
 from robustness.model_utils import make_and_restore_model
 import argparse
 import timm
+from torchvision import models
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 _FT_ROOT = '/cmlscratch/mmoayeri/dcr_models/finetuned/'
@@ -175,17 +176,17 @@ class FineTuner(object):
         else:
             # nonrobust resnet18 and resnet50
             if mtype=='resnet18':
-                resnet = models.resnet18(pretrained=pretrained)
+                resnet = models.resnet18(pretrained=True)
             elif mtype == 'resnet50':
-                resnet = models.resnet50(pretrained=pretrained)
+                resnet = models.resnet50(pretrained=True)
             elif mtype == 'resnet101':
-                resnet = models.resnet101(pretrained=pretrained)
+                resnet = models.resnet101(pretrained=True)
             elif mtype == 'resnet152':
-                resnet = models.resnet152(pretrained=pretrained)
+                resnet = models.resnet152(pretrained=True)
 
             feat_net = nn.Sequential(*list(resnet.children())[:-1])
             in_ftrs = resnet.fc.in_features
-            classifier = nn.Linear(in_features=in_ftrs, out_features=self.n_classes, bias=True)
+            classifier = nn.Linear(in_features=in_ftrs, out_features=10, bias=True)
             
             model = nn.Sequential()
             model.add_module('feat_net', feat_net)
@@ -270,9 +271,9 @@ class FineTuner(object):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='RIVAL10 Finetuner')
-    parser.add_argument('--mtype', type=str, required=True)
+    parser.add_argument('--mtype', type=str, default='resnet50')
     parser.add_argument('--fg_only', action="store_true")
-    parser.add_argumet('--all', action="store_true")
+    parser.add_argument('--all', action="store_true")
 
     _ALL_MTYPES = ['resnet18', 'resnet50', 'resnet101','resnet152', 'robust_resnet18', 'robust_resnet50', 
                'vit_tiny', 'vit_small', 'vit_base', 'deit_tiny', 'deit_small', 'deit_base', 
@@ -287,6 +288,6 @@ if __name__ == '__main__':
             finetuner = FineTuner(mtype=mtype, fg_only=True, epochs=20)
             finetuner.finetune()
     else:
-        finetuner = FineTuner(mtype=mtype, fg_only=args.fg_only, epochs=10)
+        finetuner = FineTuner(mtype=args.mtype, fg_only=args.fg_only, epochs=10)
         finetuner.finetune()
 
