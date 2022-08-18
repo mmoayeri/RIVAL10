@@ -67,7 +67,7 @@ def gradcam_vis_and_score(model, pos, masks, target_layer, target_category, vis=
     grayscale_cam = []
     if type(target_category) is not list:
         target_category = [target_category] * pos.shape[0]
-        targets = [ClassifierOutputTarget(i.item()) for i in target_labels]
+    targets = [ClassifierOutputTarget(i) for i in target_category]
     for i in range(0,pos.shape[0]):
         # grayscale_cam.append(gradcam(model, pos[i:i+1], target_layer, target_category[i], cam))
         grayscale_cam.append(gradcam(model, pos[i:i+1], target_layer, targets[i], cam))
