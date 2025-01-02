@@ -1,5 +1,7 @@
 # Minimalist RIVAl10 Dataset
 
+A modification from [https://github.com/mmoayeri/RIVAL10](https://github.com/mmoayeri/RIVAL10)
+
 ### Downloading the Data
 
 Download the RIVAL10 dataset from the command line using:
@@ -12,7 +14,7 @@ unzip rival10.zip
 ### Installation
 
 ```
-pip install -b minimalist git+https://github.com/Uzukidd/RIVAL10.git
+pip install git+https://github.com/Uzukidd/RIVAL10.git@minimalist
 ```
 
 ### Usage
@@ -21,7 +23,7 @@ See `test/*` for more details.
 
 ### Citation
 
-If this dataset or code is of use to you, please consider citing our CVPR paper.
+If this dataset or code is of use to you, please consider citing their CVPR paper.
 
 ```
 @inproceedings{moayeri2022comprehensive,
