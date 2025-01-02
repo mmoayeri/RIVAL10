@@ -1,34 +1,24 @@
 import torch
 import numpy as np
-import matplotlib.pyplot as plt
 from torch.utils.data import Dataset
-from torchvision import transforms, utils
-import torchvision.transforms.functional as TF
-import os
+from torchvision import transforms
+
 import glob
 import json
-import random
 import matplotlib.image as mpimg
 from PIL import Image
-from pathlib import Path
 import pickle
-from binascii import a2b_base64
 from tqdm import tqdm
 
-# UPDATE _DATA_ROOT to '{path to dir where rival10.zip is unzipped}/RIVAL10/'
-_DATA_ROOT = None
-_LABEL_MAPPINGS = './datasets/label_mappings.json'
-_WNID_TO_CLASS = './datasets/wnid_to_class.json'
+from .constants import *
 
-_ALL_ATTRS = ['long-snout', 'wings', 'wheels', 'text', 'horns', 'floppy-ears',
-              'ears', 'colored-eyes', 'tail', 'mane', 'beak', 'hairy', 
-              'metallic', 'rectangular', 'wet', 'long', 'tall', 'patterned']
+from typing import Optional
 
 def attr_to_idx(attr):
-    return _ALL_ATTRS.index(attr)
+    return RIVAL10_constants._ALL_ATTRS.index(attr)
 
 def idx_to_attr(idx):
-    return _ALL_ATTRS[idx]
+    return RIVAL10_constants._ALL_ATTRS[idx]
 
 def resize(img): 
     return np.array(Image.fromarray(np.uint8(img)).resize((224,224))) / 255
@@ -36,12 +26,14 @@ def resize(img):
 def to_3d(img):
     return np.stack([img, img, img], axis=-1)
 
-def save_uri_as_img(uri, fpath='tmp.png'):
+def decode_base64_as_img(uri, fpath='tmp.png'):
     ''' saves raw mask and returns it as an image'''
-    binary_data = a2b_base64(uri)
-    with open(fpath, 'wb') as f:
-        f.write(binary_data)
-    img = mpimg.imread(fpath)
+    import base64
+    from io import BytesIO
+    image_data = base64.b64decode(uri)
+    image_data = BytesIO(image_data)
+    img = mpimg.imread(image_data, format='jpg')
+
     img = resize(img)
     # binarize mask
     img = np.sum(img, axis=-1)
@@ -50,27 +42,34 @@ def save_uri_as_img(uri, fpath='tmp.png'):
     return img
 
 class LocalRIVAL10(Dataset):
-    def __init__(self, train=True, masks_dict=True, include_aug=False):
+    def __init__(self, train=True, 
+                 classification_output=True, 
+                #  spss_output=False, 
+                 masks_dict=True, 
+                 transform:Optional[transforms.Compose]=None,):
         '''
         Set masks_dict to be true to include tensor of attribute segmentations when retrieving items.
+        Set classification_output to be true if you're doing a standard classification task.
 
         See __getitem__ for more documentation. 
         '''
         self.train = train
-        self.data_root = _DATA_ROOT.format('train' if self.train else 'test')
+        self.data_root = RIVAL10_constants._RIVAL10_DIR.format('train' if self.train else 'test')
+        self.classification_output = classification_output
+        # self.spss_output = spss_output
         self.masks_dict = masks_dict
+        self.transform = transform
 
         self.instance_types = ['ordinary']
         # NOTE: 
-        if include_aug:
-            self.instance_types += ['superimposed', 'removed']
+        # if include_aug:
+        #     self.instance_types += ['superimposed', 'removed']
         
         self.instances = self.collect_instances()
-        self.resize = transforms.Resize((224,224))
 
-        with open(_LABEL_MAPPINGS, 'r') as f:
+        with open(RIVAL10_constants._LABEL_MAPPINGS, 'r') as f:
             self.label_mappings = json.load(f)
-        with open(_WNID_TO_CLASS, 'r') as f:
+        with open(RIVAL10_constants._WNID_TO_CLASS, 'r') as f:
             self.wnid_to_class = json.load(f)
 
     def get_rival10_og_class(self, img_url):
@@ -98,33 +97,13 @@ class LocalRIVAL10(Dataset):
     def __len__(self):
         return len(self.all_instances)
 
-    def transform(self, imgs):
-        transformed_imgs = []
-        i, j, h, w = transforms.RandomResizedCrop.get_params(imgs[0], scale=(0.8,1.0),ratio=(0.75,1.25))
-        coin_flip = (random.random() < 0.5)
-        for ind, img in enumerate(imgs):
-            if self.train:
-                img = TF.crop(img, i, j, h, w)
-
-                if coin_flip:
-                    img = TF.hflip(img)
-
-            img = TF.to_tensor(self.resize(img))
-            
-            if img.shape[0] == 1:
-                img = torch.cat([img, img, img], axis=0)
-            
-            transformed_imgs.append(img)
-
-        return transformed_imgs
-
     def merge_all_masks(self, mask_dict):
         merged_mask = np.zeros((224,224,3))
         for attr in mask_dict:
             if attr == 'entire-object':
                 continue
             mask_uri = mask_dict[attr]
-            mask = save_uri_as_img(mask_uri)
+            mask = decode_base64_as_img(mask_uri)
             merged_mask = mask if merged_mask is None else mask + merged_mask
         merged_mask[merged_mask > 0] = 1
         return merged_mask
@@ -160,13 +139,15 @@ class LocalRIVAL10(Dataset):
                 with open(mask_dict_path, 'rb') as fp:
                     mask_dict = pickle.load(fp)
             except:
+                print(f"Error occured when loading {mask_dict_path}!")
                 mask_dict = dict()
+
             for attr in mask_dict:
                 mask_uri = mask_dict[attr]
-                mask = save_uri_as_img(mask_uri)
+                mask = decode_base64_as_img(mask_uri)
                 imgs.append(Image.fromarray(np.uint8(255*mask)))
-        
-        transformed_imgs = self.transform(imgs)
+
+        transformed_imgs = [self.transform(img) for img in imgs]
         img = transformed_imgs.pop(0)
         merged_mask = transformed_imgs.pop(0)
         out = dict({'img':img, 
@@ -175,12 +156,19 @@ class LocalRIVAL10(Dataset):
                     'merged_mask' :merged_mask,
                     'og_class_name': class_name,
                     'og_class_label': class_label})
+        
+        # if self.spss_output:
+        #     return out["img"], out["og_class_label"], out["attr_labels"]
+
+        if self.classification_output:
+            return out["img"], out["og_class_label"]
+
         if self.masks_dict:
-            attr_masks = [torch.zeros(img.shape) for i in range(len(_ALL_ATTRS)+1)]
+            attr_masks = [torch.zeros(img.shape) for i in range(len(RIVAL10_constants._ALL_ATTRS)+1)]
             for i, attr in enumerate(mask_dict):
                 # if attr == 'entire-object':
                 ind = -1 if attr == 'entire-object' else attr_to_idx(attr)
                 attr_masks[ind] = transformed_imgs[i]
             out['attr_masks'] = torch.stack(attr_masks)
-        
+
         return out
