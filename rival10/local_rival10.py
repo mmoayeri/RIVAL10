@@ -26,8 +26,8 @@ def resize(img):
 def to_3d(img):
     return np.stack([img, img, img], axis=-1)
 
-def decode_base64_as_img(uri, fpath='tmp.png'):
-    ''' saves raw mask and returns it as an image'''
+def decode_base64_as_img(uri):
+    ''' encode base64 as mask '''
     import base64
     from io import BytesIO
     image_data = base64.b64decode(uri)
@@ -42,23 +42,25 @@ def decode_base64_as_img(uri, fpath='tmp.png'):
     return img
 
 class LocalRIVAL10(Dataset):
-    def __init__(self, train=True, 
-                 classification_output=True, 
-                #  spss_output=False, 
-                 masks_dict=True, 
-                 transform:Optional[transforms.Compose]=None,):
+    def __init__(self, train:bool=True, 
+                 cherrypick_list:list[str]=None,
+                 masks_dict:bool=True, 
+                 transform:Optional[transforms.Compose]=None,
+                 verbose:str="key"):
         '''
         Set masks_dict to be true to include tensor of attribute segmentations when retrieving items.
-        Set classification_output to be true if you're doing a standard classification task.
+        Use cherrypick_list to fit different shapes of output, e.g. set cherrypick_list to be ["img", "og_class_label"] -> img, label = rival10.__getitem__(0)
 
         See __getitem__ for more documentation. 
         '''
         self.train = train
         self.data_root = RIVAL10_constants._RIVAL10_DIR.format('train' if self.train else 'test')
-        self.classification_output = classification_output
+        self.cherrypick_list = cherrypick_list
         # self.spss_output = spss_output
         self.masks_dict = masks_dict
         self.transform = transform
+        self.verbose = verbose
+        # quiet, key, full
 
         self.instance_types = ['ordinary']
         # NOTE: 
@@ -84,7 +86,10 @@ class LocalRIVAL10(Dataset):
         for subdir in self.instance_types:
             instances = []
             dir_path = self.data_root + subdir
-            for f in tqdm(glob.glob(dir_path+'/*')):
+            itr = glob.glob(dir_path+'/*')
+            if self.verbose == "full" or self.verbose == "key":
+                itr = tqdm(glob.glob(dir_path+'/*'))
+            for f in itr:
                 if '.JPEG' in f and 'merged_mask' not in f:
                     img_url = f
                     label_path = f[:-5] + '_attr_labels.npy'
@@ -118,7 +123,8 @@ class LocalRIVAL10(Dataset):
             attr_masks: tensor w/ mask per attribute. Masks are empty for non present attrs
         '''
         img_url, label_path,  merged_mask_path, mask_dict_path = self.all_instances[i]
-
+        if self.verbose == "full":
+            print("Now loading:", img_url, label_path,  merged_mask_path, mask_dict_path)
         # get rival10 info for original image (label may not hold for attr-augmented images)
         class_name, class_label = self.get_rival10_og_class(img_url)
 
@@ -133,7 +139,7 @@ class LocalRIVAL10(Dataset):
         changed_attrs = torch.Tensor(labels[1]).long() # attrs that were added or removed
 
         merged_mask_img = Image.open(merged_mask_path)
-        imgs = [img, merged_mask_img]
+        imgs = [self.transform(img), self.transform(merged_mask_img)]
         if self.masks_dict:
             try:
                 with open(mask_dict_path, 'rb') as fp:
@@ -141,34 +147,32 @@ class LocalRIVAL10(Dataset):
             except:
                 print(f"Error occured when loading {mask_dict_path}!")
                 mask_dict = dict()
-
+            if self.verbose == "full":
+                print(mask_dict)
             for attr in mask_dict:
+                i
                 mask_uri = mask_dict[attr]
                 mask = decode_base64_as_img(mask_uri)
-                imgs.append(Image.fromarray(np.uint8(255*mask)))
+                imgs.append(torch.from_numpy(np.uint8(mask)).permute((2, 0, 1)))
 
-        transformed_imgs = [self.transform(img) for img in imgs]
-        img = transformed_imgs.pop(0)
-        merged_mask = transformed_imgs.pop(0)
+        img = imgs.pop(0)
+        merged_mask = imgs.pop(0)
         out = dict({'img':img, 
                     'attr_labels': attr_labels, 
                     'changed_attrs': changed_attrs,
                     'merged_mask' :merged_mask,
                     'og_class_name': class_name,
                     'og_class_label': class_label})
-        
-        # if self.spss_output:
-        #     return out["img"], out["og_class_label"], out["attr_labels"]
 
-        if self.classification_output:
-            return out["img"], out["og_class_label"]
+        if self.cherrypick_list is not None:
+            return (out[key] for key in self.cherrypick_list)
 
         if self.masks_dict:
             attr_masks = [torch.zeros(img.shape) for i in range(len(RIVAL10_constants._ALL_ATTRS)+1)]
             for i, attr in enumerate(mask_dict):
                 # if attr == 'entire-object':
                 ind = -1 if attr == 'entire-object' else attr_to_idx(attr)
-                attr_masks[ind] = transformed_imgs[i]
+                attr_masks[ind] = imgs[i]
             out['attr_masks'] = torch.stack(attr_masks)
 
         return out
