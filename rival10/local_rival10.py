@@ -164,9 +164,6 @@ class LocalRIVAL10(Dataset):
                     'og_class_name': class_name,
                     'og_class_label': class_label})
 
-        if self.cherrypick_list is not None:
-            return (out[key] for key in self.cherrypick_list)
-
         if self.masks_dict:
             attr_masks = [torch.zeros(img.shape) for i in range(len(RIVAL10_constants._ALL_ATTRS)+1)]
             for i, attr in enumerate(mask_dict):
@@ -174,5 +171,8 @@ class LocalRIVAL10(Dataset):
                 ind = -1 if attr == 'entire-object' else attr_to_idx(attr)
                 attr_masks[ind] = imgs[i]
             out['attr_masks'] = torch.stack(attr_masks)
+        
+        if self.cherrypick_list is not None:
+            return (out[key] for key in self.cherrypick_list)
 
         return out
