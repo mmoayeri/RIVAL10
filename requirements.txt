@@ -1,0 +1,8 @@
+torch
+torchvision
+numpy
+json
+matplotlib
+pickle
+tqdm
+Pillow

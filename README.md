@@ -13,6 +13,10 @@ unzip rival10.zip
 
 ### Installation
 
+a. Make sure you have installed all the dependency listed in `requirements.txt`
+
+b. Install RIVAL10 from github.
+
 ```
 pip install git+https://github.com/Uzukidd/RIVAL10.git@minimalist
 ```

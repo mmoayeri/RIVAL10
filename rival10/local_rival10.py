@@ -173,6 +173,6 @@ class LocalRIVAL10(Dataset):
             out['attr_masks'] = torch.stack(attr_masks)
         
         if self.cherrypick_list is not None:
-            return (out[key] for key in self.cherrypick_list)
+            return tuple(out[key] for key in self.cherrypick_list)
 
         return out
