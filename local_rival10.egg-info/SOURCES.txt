@@ -1,0 +1,10 @@
+README.md
+setup.py
+local_rival10.egg-info/PKG-INFO
+local_rival10.egg-info/SOURCES.txt
+local_rival10.egg-info/dependency_links.txt
+local_rival10.egg-info/top_level.txt
+rival10/__init__.py
+rival10/constants.py
+rival10/local_rival10.py
+rival10/version.py
